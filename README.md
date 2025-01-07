@@ -143,7 +143,101 @@
 </body>
 </html>
 ```
+python脚本测试：
+安装依赖
+```bash
+pip install python-socketio eventlet pyaudio
+```
 
+```bash
+import socketio
+import eventlet
+import pyaudio
+import time
+
+# 创建 SocketIO 客户端
+sio = socketio.Client()
+
+# 连接服务器
+def connect_server():
+    sio.connect('http://localhost:2700')  # 根据实际情况修改服务器地址
+    print("Connected to server")
+
+# 发送音频数据
+def send_audio_data(audio_data):
+    sio.emit('audio_data', audio_data)
+
+# 结束音频流
+def end_stream():
+    sio.emit('end_stream')
+
+# 处理连接事件
+@sio.event
+def connect():
+    print("Connected to server")
+    # 这里可以初始化一些客户端状态
+
+# 处理断开连接事件
+@sio.event
+def disconnect():
+    print("Disconnected from server")
+
+# 处理错误事件
+@sio.event
+def error(data):
+    print(f"Error: {data['message']}")
+
+# 处理识别结果事件
+@sio.event
+def result(data):
+    print(f"Result: {data}")
+
+# 处理部分识别结果事件
+@sio.event
+def partial_result(data):
+    print(f"Partial Result: {data}")
+
+# 处理最终识别结果事件
+@sio.event
+def final_result(data):
+    print(f"Final Result: {data}")
+
+# 音频流的参数
+CHUNK = 1024
+FORMAT = pyaudio.paInt16
+CHANNELS = 1
+RATE = 16000
+
+# 初始化 PyAudio
+p = pyaudio.PyAudio()
+
+# 打开麦克风
+stream = p.open(format=FORMAT,
+                channels=CHANNELS,
+                rate=RATE,
+                input=True,
+                frames_per_buffer=CHUNK)
+
+def record_and_send():
+    print("Recording...")
+    connect_server()
+    try:
+        while True:
+            data = stream.read(CHUNK)
+            send_audio_data(data)
+            time.sleep(0.01)  # 控制发送频率
+    except KeyboardInterrupt:
+        print("Recording stopped.")
+        end_stream()
+    finally:
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+        sio.disconnect()
+
+if __name__ == '__main__':
+    record_and_send()
+```
 ## 配置说明
 
 - **模型选择**：默认使用小型中文模型，您可以在 `model` 中替换为其他语言模型。
