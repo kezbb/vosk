@@ -252,7 +252,7 @@ print("result:", response.json())
 ```
 ## 配置说明
 
-- **模型选择**：默认使用小型中文模型，您可以在 `model` 中替换为其他语言模型。
+- **模型选择**：默认使用小型中文模型，您可以在 `model` 中替换为其他语言模型（自行下载）。
 - **端口配置**：如需修改服务端口，请更改 `docker run -d -p 2700:2700 --name vosk-server vosk-realtime-server` 命令中的 `port:2700` 配置。
 
 ## 支持的语言模型
