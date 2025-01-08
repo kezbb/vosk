@@ -259,7 +259,6 @@ print("result:", response.json())
 
 Vosk 提供了多种预训练模型，您可以根据需要下载并替换默认模型（要把文件提取出来到model文件夹下）：
 
-- [中文模型](https://alphacephei.com/vosk/models/vosk-model-small-cn-0.22.zip)
 - [英文模型](https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip)
 - [更多模型](https://alphacephei.com/vosk/models)
 
