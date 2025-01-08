@@ -238,6 +238,18 @@ def record_and_send():
 if __name__ == '__main__':
     record_and_send()
 ```
+Http接口测试
+```bash
+import requests
+
+# 上传音频文件
+url = "http://localhost:2700/recognize"
+files = {'audio': open('output.wav', 'rb')}
+response = requests.post(url, files=files)
+
+# 打印部分结果
+print("result:", response.json())
+```
 ## 配置说明
 
 - **模型选择**：默认使用小型中文模型，您可以在 `model` 中替换为其他语言模型。
