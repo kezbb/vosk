@@ -101,6 +101,37 @@ def handle_end_stream():
         logger.error(f"Error finalizing stream: {e}")
         emit('error', {'message': str(e)})
 
+@app.route('/recognize', methods=['POST'])
+def recognize():
+    """
+    处理 HTTP 请求的音频数据
+    """
+    if 'audio' not in request.files:
+        return {'error': 'No audio file provided'}, 400
+
+    audio_file = request.files['audio']
+    client_id = request.remote_addr  # 使用客户端 IP 作为唯一 ID
+
+    with recognition_lock:
+        if client_id not in client_recognition:
+            client_recognition[client_id] = KaldiRecognizer(model, 16000)
+
+        rec = client_recognition[client_id]
+
+    try:
+        # 处理音频数据
+        audio_data = audio_file.read()
+        if rec.AcceptWaveform(audio_data):
+            result = json.loads(rec.Result())
+        else:
+            result = json.loads(rec.PartialResult())
+
+        return result
+
+    except Exception as e:
+        logger.error(f"Error processing audio data: {e}")
+        return {'error': str(e)}, 500
+
 if __name__ == '__main__':
     eventlet.monkey_patch()
     socketio.run(app, host='0.0.0.0', port=2700, log_output=False)  # 禁用 SocketIO 的日志输出
